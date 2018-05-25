@@ -11,20 +11,27 @@ def main():
 		show_help()
 		sys.exit()
 
-	CONFIG = {}
+	try:
+		CONFIG = load_config()
+	except FileNotFoundError:
+		CONFIG = {}
+		first_start(CONFIG)
 
-	for arg in sys.argv[1:]:
-		if arg == "-h":
-			show_help()
-			sys.exit()
-		elif arg == "-c":
-			new_key = sys.argv[sys.argv.index(arg) + 1]
-			CONFIG["Secret"] = new_key
-			save_config(CONFIG)
-			print("New key saved.")
-			sys.exit()
+	# for arg in sys.argv[1:]:
+	# 	if arg == "-h":
+	# 		show_help()
+	# 		sys.exit()
+	# 	elif arg == "-c":
+	# 		new_key = sys.argv[sys.argv.index(arg) + 1]
+	# 		CONFIG["Secret"] = new_key
+	# 		save_config(CONFIG)
+	# 		print("New key saved.")
+	# 		sys.exit()
 
-	CONFIG = load_config()
+	# if "Secret" not in CONFIG:
+	# 	print("Please use the -c command to create a valid config file before uploading, or see help with -h.")
+	# 	sys.exit()
+
 	OUT_FILE = "out"
 	DATA = []
 	PARAM = {"Secret": CONFIG["Secret"], "FileName": OUT_FILE}
@@ -48,13 +55,24 @@ def main():
 		print(r.status_code)
 		print(r.text)
 
+def first_start(config):
+	for arg in sys.argv[1:]:
+		if arg == "-h":
+			show_help()
+			sys.exit()
+		elif arg == "-c":
+			new_key = sys.argv[sys.argv.index(arg) + 1]
+			config["Secret"] = new_key
+			save_config(config)
+			print("New key saved.")
+			sys.exit()
+		else:
+			print("Please use the -c command to create a valid config file before uploading, or see help with -h.")
+			sys.exit()
+
 def load_config():
-	try:
-		with open("config", "r") as c:
-			return json.load(c)
-	except FileNotFoundError:
-		print("Please use the -c command to create a valid config file before uploading, or see help with -h.")
-		sys.exit()
+	with open("config", "r") as c:
+		return json.load(c)
 
 def save_config(config):
 	with open("config", "w") as c:
@@ -67,17 +85,10 @@ def show_help():
 	OUTPUT NAME can be a path, otherwise the file will be created in the directory where the script is
 	Extension is added automatically.
 
-	-c - configure; write a secret API key & remember it
+	w-c - configure; write a secret API key & remember it
 	-h - this help
 
-/*
- * ----------------------------------------------------------------------------
- * "THE BEER-WARE LICENSE" (Revision 42):
- * <matmakos@gmail.com> wrote this file.  As long as you retain this notice you
- * can do whatever you want with this stuff. If we meet some day, and you think
- * this stuff is worth it, you can buy me a beer in return.   Mateusz Makowski
- * ----------------------------------------------------------------------------
- */""")
+	This software is licensed under the Beerware License. Please see README for details.""")
 
 
 if __name__ == "__main__":
