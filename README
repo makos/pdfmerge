@@ -1,0 +1,27 @@
+pdfmerge
+
+Simple utility script I created for a free online converter 
+API @ www.convertapi.com to merge multiple files into one pdf, 
+a feature that is basically only available with paid PDF software, 
+and even Convert API only offers 1500 one-time use seconds of 
+server time for free. But that's enough for my needs (at least for now).
+
+Usage: pdfmerge [-h] [-c secret] [OUTPUT NAME] [INPUT FILE(S)]
+	   
+	   -h - displays help
+	   -c [secret] - saves or changes the secret API key
+
+	   .pdf extension is automatically added to output file. 
+	   Input files can be located in any directory. 
+	   Output file will be created next to the Python file, unless specified
+	   otherwise.
+
+
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <matmakos@gmail.com> wrote this file.  As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return.   Mateusz Makowski
+ * ----------------------------------------------------------------------------
+ */
