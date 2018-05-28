@@ -40,11 +40,13 @@ def main():
 def show_help():
 	print("""pdfmerge - merge PDF files using pyPDF2 library.
 
-Usage: pdfmerge INPUT FILE(S) [-o <OUTPUT FILE>]
+Usage: pdfmerge INPUT FILE(S) [-o <OUTPUT FILE>] [-h]
 
 Commands:
 	-h - show this help
-	-o - specify output file name; default is "out.pdf" """)
+	-o - specify output file name; default is "out.pdf" 
+
+	This software is licensed under the Beerware License. See README for details.""")
 	sys.exit()
 
 if __name__ == "__main__":
