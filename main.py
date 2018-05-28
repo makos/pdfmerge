@@ -1,95 +1,51 @@
-import requests
-import os.path
-import base64
+#-*- coding: utf-8 -*-
+
+import PyPDF2
 import sys
-import json
 
 
 def main():
+	input_files = []
+	output = "out.pdf"
+	merger = PyPDF2.PdfFileMerger()
 
-	if len(sys.argv) < 3:
-		show_help()
-		sys.exit()
-
-	try:
-		CONFIG = load_config()
-	except FileNotFoundError:
-		CONFIG = {}
-		first_start(CONFIG)
-
-	# for arg in sys.argv[1:]:
-	# 	if arg == "-h":
-	# 		show_help()
-	# 		sys.exit()
-	# 	elif arg == "-c":
-	# 		new_key = sys.argv[sys.argv.index(arg) + 1]
-	# 		CONFIG["Secret"] = new_key
-	# 		save_config(CONFIG)
-	# 		print("New key saved.")
-	# 		sys.exit()
-
-	# if "Secret" not in CONFIG:
-	# 	print("Please use the -c command to create a valid config file before uploading, or see help with -h.")
-	# 	sys.exit()
-
-	OUT_FILE = "out"
-	DATA = []
-	PARAM = {"Secret": CONFIG["Secret"], "FileName": OUT_FILE}
-	
-	i = 0
-	for arg in sys.argv[1:]:
-		if sys.argv.index(arg) == 1:
-			OUT_FILE = arg
-		else:
-			DATA.append(("Files[{0}]".format(i), (arg, open(os.path.abspath(arg), "rb"), "multipart/form-data")))
-			i += 1
-
-	r = requests.post("https://v2.convertapi.com/pdf/to/merge", params=PARAM, files=DATA)
-	if r.status_code == 200:
-		json_data = r.json()
-		with open(OUT_FILE + ".pdf", "wb") as f:
-			f.write(base64.b64decode((json_data["Files"][0]["FileData"]).encode('utf-8')))
-		print ("All done! Conversion cost: {0}\nFile saved as \"{1}\"".format(json_data["ConversionCost"], OUT_FILE))
-	else:
-		print("Error! Message:")
-		print(r.status_code)
-		print(r.text)
-
-def first_start(config):
 	for arg in sys.argv[1:]:
 		if arg == "-h":
 			show_help()
-			sys.exit()
-		elif arg == "-c":
-			new_key = sys.argv[sys.argv.index(arg) + 1]
-			config["Secret"] = new_key
-			save_config(config)
-			print("New key saved.")
-			sys.exit()
+		elif arg == "-o":
+			file = sys.argv[sys.argv.index(arg) + 1]
+			output = file
 		else:
-			print("Please use the -c command to create a valid config file before uploading, or see help with -h.")
-			sys.exit()
+			file = sys.argv[sys.argv.index(arg)]
+			# Accept only files ending with .pdf & don't parse output file (if specified)
+			if file[-3:].lower() == "pdf":
+				if file != output:
+					input_files.append(file)
+			else:
+				print("Please make sure files have a .pdf extension.")
+				sys.exit()
 
-def load_config():
-	with open("config", "r") as c:
-		return json.load(c)
+	if len(input_files) < 2:
+		print("Please add more than 1 input PDF to merge.")
+		sys.exit()
 
-def save_config(config):
-	with open("config", "w") as c:
-		json.dump(config, c, indent = 2, sort_keys = True)
+	for document in input_files:
+		f = open(document, "rb")
+		merger.append(f)
+
+	with open(output, "wb") as f:
+		merger.write(f)
 
 
 def show_help():
-	print("""pdfmerge - merge multiple pdf files into one 
-	Usage: pdfmerge [-h] [-c secret] [OUTPUT NAME] [INPUT FILE(S)]
-	OUTPUT NAME can be a path, otherwise the file will be created in the directory where the script is
-	Extension is added automatically.
+	print("""pdfmerge - merge PDF files using pyPDF2 library.
 
-	w-c - configure; write a secret API key & remember it
-	-h - this help
+Usage: pdfmerge INPUT FILE(S) [-o <OUTPUT FILE>]
 
-	This software is licensed under the Beerware License. Please see README for details.""")
-
+Commands:
+	-h - show this help
+	-o - specify output file name; default is "out.pdf" """)
+	sys.exit()
 
 if __name__ == "__main__":
 	main()
